@@ -1,3 +1,4 @@
+import { initSpeedInsights } from './utils/speed-insights.js';
 import { Globals } from './configs/globals.js';
 import { jsonResponse } from './utils/http-util.js';
 import { log, formatLogMessage } from './utils/log-util.js'
@@ -8,6 +9,9 @@ import { getBangumi, getComment, getCommentByUrl, getSegmentComment, matchAnime,
 import { handleConfig, handleUI, handleLogs, handleClearLogs, handleDeploy, handleClearCache } from "./apis/system-api.js";
 import { handleSetEnv, handleAddEnv, handleDelEnv } from "./apis/env-api.js";
 import { Segment } from "./models/dandan-model.js"
+
+// Initialize Vercel Speed Insights for performance monitoring
+initSpeedInsights().catch(err => console.warn('[Speed Insights] Initialization error:', err.message));
 
 let globals;
 
@@ -269,7 +273,7 @@ async function handleRequest(req, env, deployPlatform, clientIp) {
 
       const history = globals.requestHistory.get(clientIp);
 
-      // 过滤掉已经超出 1 分钟的请求
+      // 过��掉已经超出 1 分钟的请求
       const recentRequests = history.filter(timestamp => currentTime - timestamp <= oneMinute);
 
       // 如果最近的请求数量大于等于配置的限制次数，则限制请求
@@ -418,7 +422,7 @@ export async function netlifyHandler(event, context) {
     body: event.body ? event.body : undefined,
   });
 
-  // 调用核心处理函数
+  // 调用核���处理函数
   const response = await handleRequest(request, process.env, "netlify", clientIp);
 
   // 转换为 Netlify 响应格式
