@@ -46,6 +46,31 @@ function checkAndCopyConfigFiles() {
 }
 
 /**
+ * Initialize Vercel Speed Insights
+ * Attempts to load and initialize @vercel/speed-insights for performance monitoring
+ * Safely handles cases where the package might not be available
+ */
+function initializeSpeedInsights() {
+  try {
+    // Try to dynamically import and initialize Speed Insights
+    // Using optional import pattern to gracefully handle missing package
+    try {
+      const speedInsights = require('@vercel/speed-insights/node');
+      if (speedInsights && typeof speedInsights.init === 'function') {
+        speedInsights.init();
+        console.log('[Speed Insights] Successfully initialized Vercel Speed Insights');
+      }
+    } catch (importError) {
+      // Speed Insights might not be available in non-Vercel environments
+      // or during local development. This is not a critical error.
+      console.log('[Speed Insights] Info: Speed Insights not available:', importError.message);
+    }
+  } catch (error) {
+    console.warn('[Speed Insights] Warning during initialization:', error.message);
+  }
+}
+
+/**
  * 从 YAML 文件加载配置
  * @returns {Object} 解析后的配置对象
  */
@@ -331,7 +356,7 @@ function createServer() {
       // 获取请求客户端的ip，兼容反向代理场景
       let clientIp = 'unknown';
       
-      // 优先级：X-Forwarded-For > X-Real-IP > 直接连接IP
+      // 优先级：X-Forwarded-For > X-Real-IP > 直接���接IP
       const forwardedFor = req.headers['x-forwarded-for'];
       if (forwardedFor) {
         // X-Forwarded-For 可能包含多个IP（代理链），第一个是真实客户端IP
@@ -473,7 +498,7 @@ function createProxyServer() {
 
           // 根据反代类型构建不同的目标路径
           if (finalReverseProxy === universalRP) {
-            // 万能反代：追加原始完整URL
+            // ���能反代：追加原始完整URL
             // 路径格式：/反代路径/原始完整URL
             options.path = baseReversePath + '/' + targetUrl.replace(':/', '');
             logMessage = `[Proxy Server] Universal RP rewriting to: ${protocol === https ? 'https' : 'http'}://${options.hostname}:${options.port}${options.path}`;
@@ -526,6 +551,9 @@ function createProxyServer() {
 function startServerSync() {
   console.log('[server] Starting server synchronously (optimal path)');
 
+  // Initialize Vercel Speed Insights for performance monitoring
+  initializeSpeedInsights();
+
   // 设置 .env 文件监听
   setupEnvWatcher();
 
@@ -546,6 +574,9 @@ function startServerSync() {
 async function startServerAsync() {
   try {
     console.log('[server] Starting server asynchronously (compatibility mode for Node.js <20.19.0 + node-fetch v3)');
+
+    // Initialize Vercel Speed Insights for performance monitoring
+    initializeSpeedInsights();
 
     // 设置 .env 文件监听
     setupEnvWatcher();
