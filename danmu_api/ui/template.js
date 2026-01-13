@@ -303,6 +303,12 @@ export const HTML_TEMPLATE = /* html */ `
         <p>有问题提issue或私信机器人都ok</p>
     </footer>
 
+    <!-- Vercel Web Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+
     <script>
         ${mainJsContent}
         ${previewJsContent}
